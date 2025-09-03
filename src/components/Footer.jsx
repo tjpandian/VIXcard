@@ -66,12 +66,10 @@ function Footer() {
               <Link to="/Product" className="block hover:text-purple-500 transition-colors">
                 Product
               </Link>
-              <Link to="/work-with-us" className="block hover:text-purple-500 transition-colors">
+              <Link to="/Work" className="block hover:text-purple-500 transition-colors">
                 How It Work
               </Link>
-              <Link to="/blog" className="block hover:text-purple-500 transition-colors">
-                News
-              </Link>
+              
               <Link to="/contact" className="block hover:text-purple-500 transition-colors">
                 Contact
               </Link>

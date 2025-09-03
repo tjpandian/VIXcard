@@ -63,7 +63,7 @@ const processes = [
 const testimonials = [
   {
     name: 'Suresh Kumar',
-    image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200',
+    image: 'src/assets/suresh-img.jpg',
     quote: 'The digital card made my networking super easy. Just a single tap and my details are shared instantly. My clients love it!'
   },
   {

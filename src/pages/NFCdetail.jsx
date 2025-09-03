@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 function NFCdetail() {
   const navigate = useNavigate();
 
@@ -24,6 +23,8 @@ function NFCdetail() {
     qrCode: null,
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "qrCode") {
@@ -31,6 +32,9 @@ function NFCdetail() {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+
+    // clear error for the field being edited
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleFileChange = (e) => {
@@ -41,6 +45,7 @@ function NFCdetail() {
         photo: file,
         photoPreview: URL.createObjectURL(file),
       });
+      setErrors((prev) => ({ ...prev, photo: "" }));
     }
   };
 
@@ -53,33 +58,65 @@ function NFCdetail() {
         photo: file,
         photoPreview: URL.createObjectURL(file),
       });
+      setErrors((prev) => ({ ...prev, photo: "" }));
+    }
+  };
+
+  // ✅ Proper validateStep function
+  const validateStep = () => {
+    const newErrors = {};
+
+    if (step === 1) {
+      if (!formData.name.trim()) newErrors.name = "Full Name is required";
+      if (!formData.job.trim()) newErrors.job = "Job Title / Company is required";
+      if (!formData.whatsapp.trim()) newErrors.whatsapp = "WhatsApp Number is required";     
+
+      // Email validation
+      if (!formData.email.trim()) {
+        newErrors.email = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = "Enter a valid email address";
+      }
+    }
+
+    if (step === 2) {
+      if (!formData.website.trim()) newErrors.website = "Website URL is required";
+    }
+
+    if (step === 3) {
+      if (!formData.upiId.trim()) newErrors.upiId = "UPI ID is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep()) {
+      setStep(step + 1);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate("/view", { state: formData });
+    if (validateStep()) {
+      navigate("/view", { state: formData });
+    }
   };
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
-      
-      <div className="flex items-center gap-4  justify-start w-full  px-5">
+      <div className="flex items-center gap-4 justify-start w-full px-5">
         <a href="/">
-       <button className="bg-gray-600 text-white px-4 py-2 rounded">
-            ⬅️ Back
-          </button>
-          </a>
-          </div>
-      
+          <button className="bg-gray-600 text-white px-4 py-2 rounded">⬅️ Back</button>
+        </a>
+      </div>
+
       <div className="max-w-lg w-full p-6 bg-white shadow-lg rounded-2xl">
-        
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Step {step} of 3
-        </h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Step {step} of 3</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* STEP 1 - Business Info */}
+          {/* STEP 1 */}
           {step === 1 && (
             <>
               <p className="text-xl text-center font-semibold">Business Info</p>
@@ -90,8 +127,9 @@ function NFCdetail() {
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full border p-3 rounded"
-                required
               />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+
               <input
                 type="text"
                 name="job"
@@ -99,8 +137,9 @@ function NFCdetail() {
                 value={formData.job}
                 onChange={handleChange}
                 className="w-full border p-3 rounded"
-                required
               />
+              {errors.job && <p className="text-red-500 text-sm">{errors.job}</p>}
+
               <input
                 type="text"
                 name="phone"
@@ -109,6 +148,7 @@ function NFCdetail() {
                 onChange={handleChange}
                 className="w-full border p-3 rounded"
               />
+
               <input
                 type="email"
                 name="email"
@@ -117,6 +157,8 @@ function NFCdetail() {
                 onChange={handleChange}
                 className="w-full border p-3 rounded"
               />
+              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+
               <input
                 type="text"
                 name="whatsapp"
@@ -125,6 +167,7 @@ function NFCdetail() {
                 onChange={handleChange}
                 className="w-full border p-3 rounded"
               />
+              {errors.whatsapp && <p className="text-red-500 text-sm">{errors.whatsapp}</p>}
 
               {/* Upload Photo */}
               <div
@@ -139,10 +182,7 @@ function NFCdetail() {
                   className="hidden"
                   id="photoUpload"
                 />
-                <label
-                  htmlFor="photoUpload"
-                  className="cursor-pointer text-gray-600"
-                >
+                <label htmlFor="photoUpload" className="cursor-pointer text-gray-600">
                   {formData.photoPreview ? (
                     <img
                       src={formData.photoPreview}
@@ -153,16 +193,14 @@ function NFCdetail() {
                     "Drag & drop or click to upload photo"
                   )}
                 </label>
-              </div>
+              </div>             
             </>
           )}
 
-          {/* STEP 2 - Online Presence */}
+          {/* STEP 2 */}
           {step === 2 && (
             <>
-              <p className="text-xl text-center font-semibold">
-                Online Presence
-              </p>
+              <p className="text-xl text-center font-semibold">Online Presence</p>
               <input
                 type="url"
                 name="website"
@@ -171,6 +209,8 @@ function NFCdetail() {
                 onChange={handleChange}
                 className="w-full border p-3 rounded"
               />
+              {errors.website && <p className="text-red-500 text-sm">{errors.website}</p>}
+
               <input
                 type="url"
                 name="instagram"
@@ -190,7 +230,7 @@ function NFCdetail() {
             </>
           )}
 
-          {/* STEP 3 - Payments */}
+          {/* STEP 3 */}
           {step === 3 && (
             <>
               <p className="text-xl text-center font-semibold">Payments</p>
@@ -202,6 +242,8 @@ function NFCdetail() {
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
               />
+              {errors.upiId && <p className="text-red-500 text-sm">{errors.upiId}</p>}
+
               <p className="text-md font-bold">QR Code Image Upload</p>
               <input
                 type="file"
@@ -210,6 +252,7 @@ function NFCdetail() {
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
               />
+
               <input
                 type="url"
                 name="paypal"
@@ -251,7 +294,7 @@ function NFCdetail() {
             {step < 3 && (
               <button
                 type="button"
-                onClick={() => setStep(step + 1)}
+                onClick={handleNext}
                 className="ml-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Next
@@ -269,7 +312,6 @@ function NFCdetail() {
           </div>
         </form>
       </div>
-    
     </div>
   );
 }
